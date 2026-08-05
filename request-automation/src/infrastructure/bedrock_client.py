@@ -53,11 +53,13 @@ class MockLlmClient(LlmPort):
     async def extract_entities(self, unified_context: str, intent: str) -> EntityResult:
         ident = r"([A-Za-z][A-Za-z0-9_.-]*)"
         username = _best_identifier(
-            rf"(?:create\s+(?:a\s+)?user|username)\s+{ident}",
+            rf"(?:create\s+(?:a\s+)?user|unlock\s+(?:a\s+)?user|username|account)\s+{ident}",
             unified_context,
         )
         if not username:
             username = _match(rf"\bfor\s+{ident}\s+on\b", unified_context, flags=re.I)
+        if not username:
+            username = _match(rf"\breset\s+password\s+(?:for\s+)?{ident}", unified_context, flags=re.I)
 
         database = _match(rf"\bin\s+(?:the\s+)?{ident}", unified_context, flags=re.I)
         if not database:

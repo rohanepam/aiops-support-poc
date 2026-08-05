@@ -1,0 +1,10 @@
+{
+  "event": "access_request",
+  "payload": {
+    "action": "grant_role",
+    "username": "APP_MONITOR",
+    "database": "PRODDB",
+    "role": "MONITORING",
+    "requested_by": "sre-team@novartis.com"
+  }
+}

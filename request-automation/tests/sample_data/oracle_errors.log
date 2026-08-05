@@ -1,0 +1,7 @@
+2026-08-04 09:15:23 INFO  [SessionManager] User login attempt: APP_BATCH_01
+2026-08-04 09:15:23 ERROR [OracleAuth] ORA-28000: The account APP_BATCH_01 is locked on PRODDB
+2026-08-04 09:15:23 WARN  [SessionManager] Failed login for APP_BATCH_01 on host prod-oracle-01.novartis.net
+2026-08-04 09:15:24 INFO  [AlertService] Account lock alert sent to dba-team@novartis.com
+2026-08-04 09:16:01 INFO  [SessionManager] User login attempt: APP_BATCH_01
+2026-08-04 09:16:01 ERROR [OracleAuth] ORA-28000: The account APP_BATCH_01 is locked on PRODDB
+2026-08-04 09:20:45 INFO  [TicketBot] Auto-created JSM ticket DB-5102: unlock user APP_BATCH_01 on PRODDB

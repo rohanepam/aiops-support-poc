@@ -1,0 +1,4 @@
+request_id,action,username,database,role,environment,requested_by
+REQ-001,create_user,SVC_ETL_PROD,PRODDB,ETL_EXECUTOR,Production,data-eng@novartis.com
+REQ-002,grant_role,APP_REPORTING,DEVDB,READ_ONLY,Non-Production,bi-team@novartis.com
+REQ-003,reset_password,ADMIN_DBA,PRODDB,DBA,Production,it-ops@novartis.com

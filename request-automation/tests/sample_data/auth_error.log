@@ -1,0 +1,4 @@
+2026-08-05 08:30:00 WARN  [AuthService] Password expiry warning for REPORT_SVC on DEVDB
+2026-08-05 09:00:01 ERROR [AuthService] ORA-28001: The password for REPORT_SVC has expired
+2026-08-05 09:00:01 ERROR [ReportEngine] Cannot generate daily report - auth failure
+2026-08-05 09:00:02 INFO  [TicketBot] Auto-ticket: reset password for REPORT_SVC on DEVDB

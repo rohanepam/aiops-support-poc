@@ -1,0 +1,13 @@
+From: john.smith@novartis.com
+To: dba-team@novartis.com
+Subject: Re: Create user APP_DASHBOARD in DEVDB
+
+Hi DBA team,
+
+As discussed, please create user APP_DASHBOARD in DEVDB with Read Only role.
+This is for the new analytics dashboard project.
+
+Manager approval: confirmed by Maria Garcia (2026-08-01).
+
+Thanks,
+John

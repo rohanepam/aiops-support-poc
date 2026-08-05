@@ -1,0 +1,12 @@
+=== ServiceNow Request Form Export ===
+Request ID: REQ-2026-08-1234
+Date: 2026-08-04
+Type: Database Access
+
+Create user SVC_PIPELINE in DEVDB
+Grant Read Only role
+Environment: Non-Production
+Hostname: dev-oracle-01
+
+Approver: tech-lead@novartis.com
+Status: Approved

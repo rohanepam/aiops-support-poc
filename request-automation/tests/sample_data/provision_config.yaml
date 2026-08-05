@@ -1,0 +1,8 @@
+# Database provisioning request
+request:
+  action: create_user
+  username: SVC_ML_TRAINING
+  database: DEVDB
+  role: READ_WRITE
+  environment: non-production
+  justification: ML model training pipeline

@@ -1,0 +1,24 @@
+
+DATABASE ACCESS REQUEST FORM
+=============================
+
+Date: 2026-08-04
+Ticket: DB-6200
+Requester: maria.garcia@novartis.com
+
+REQUEST DETAILS:
+- Action: Create user account
+- Username: SVC_DASHBOARD_02
+- Target Database: DEVDB
+- Role: Read Only
+- Schema Access: REPORTING, ANALYTICS
+- Environment: Non-Production
+- Hostname: dev-oracle-01
+
+BUSINESS JUSTIFICATION:
+New service account for the BI dashboard refresh project (PROJ-445).
+Manager approval obtained: YES (see attached email thread).
+
+APPROVALS:
+- Line Manager: Approved (2026-08-03)
+- Security Team: Pending

@@ -1,0 +1,6 @@
+2026-08-04 03:00:01 INFO  [BatchScheduler] Starting nightly ETL job
+2026-08-04 03:00:02 INFO  [OracleConnector] Connecting as APP_BATCH_01 to PRODDB
+2026-08-04 03:00:02 ERROR [OracleConnector] ORA-28000: The account APP_BATCH_01 is locked
+2026-08-04 03:00:02 ERROR [BatchScheduler] Fatal: cannot connect to database
+2026-08-04 03:00:03 INFO  [AlertService] Paging on-call DBA team
+2026-08-04 03:00:03 INFO  [TicketBot] Creating JSM ticket for unlock user APP_BATCH_01 on PRODDB

@@ -1,0 +1,4 @@
+action,username,database,role,environment
+create_user,SVC_ETL_01,DEVDB,ETL_EXECUTOR,Non-Production
+create_user,SVC_REPORT_02,DEVDB,READ_ONLY,Non-Production
+grant_role,APP_ADMIN,DEVDB,DBA,Non-Production

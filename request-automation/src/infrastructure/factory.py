@@ -16,7 +16,7 @@ def build_jsm(settings: Settings) -> JsmPort:
 def build_ocr(settings: Settings) -> OcrPort:
     if settings.adapter_mode == "mock":
         return MockOcrProcessor()
-    return OcrProcessor()
+    return OcrProcessor(model_id=settings.bedrock_model_id, region=settings.aws_region)
 
 
 def build_llm(settings: Settings) -> LlmPort:

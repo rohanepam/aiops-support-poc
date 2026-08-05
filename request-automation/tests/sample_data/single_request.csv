@@ -1,0 +1,7 @@
+field,value
+action,create_user
+username,APP_NEW_SVC
+database,DEVDB
+role,Read Only
+environment,Non-Production
+justification,New microservice needs read access
