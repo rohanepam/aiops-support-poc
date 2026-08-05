@@ -1,0 +1,17 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      ADAPTER_MODE: mock
+      ENTITY_LOOKUP_PATH: /app/entity_lookup/databases.yaml
+    volumes:
+      - ./entity_lookup:/app/entity_lookup:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

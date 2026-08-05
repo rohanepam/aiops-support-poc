@@ -1,0 +1,31 @@
+# Database alias → canonical infrastructure identifiers (CMDB stub for POC)
+DEVDB:
+  hostname: dev-oracle-01
+  environment: non-production
+  technology: oracle
+
+PRODDB:
+  hostname: prod-oracle-02
+  environment: production
+  technology: oracle
+
+# Ambiguous alias — multiple matches intentionally
+PROD:
+  - hostname: prod-oracle-01
+    environment: production
+    technology: oracle
+    alias: PROD1
+  - hostname: prod-oracle-02
+    environment: production
+    technology: oracle
+    alias: PROD2
+
+PROD1:
+  hostname: prod-oracle-01
+  environment: production
+  technology: oracle
+
+PROD2:
+  hostname: prod-oracle-02
+  environment: production
+  technology: oracle
