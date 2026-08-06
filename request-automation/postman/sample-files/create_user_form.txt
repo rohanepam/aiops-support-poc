@@ -1,0 +1,27 @@
+=== Database Access Request Form ===
+Request ID: REQ-2026-08-1234
+Date: 2026-08-04
+Submitted By: john.smith@novartis.com
+
+--- REQUEST DETAILS ---
+Action: Create user account
+Username: SVC_ANALYTICS_01
+Database: DEVDB
+Role: Read Only
+Schema Access: ANALYTICS, REPORTING
+Environment: Non-Production
+Hostname: dev-oracle-01
+
+--- BUSINESS JUSTIFICATION ---
+New analytics service account needed for the quarterly reporting
+dashboard project (PROJ-445). This service will run scheduled
+queries against the ANALYTICS schema nightly.
+
+--- APPROVALS ---
+Line Manager: Maria Garcia - APPROVED (2026-08-03)
+Security Team: Auto-approved (non-production, read-only)
+DBA Team: Pending
+
+--- NOTES ---
+Please ensure the account has password expiry set to 90 days
+as per security policy SEC-DB-001.

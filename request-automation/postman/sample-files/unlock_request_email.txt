@@ -1,0 +1,27 @@
+From: ops-alerts@novartis.com
+To: dba-team@novartis.com
+Subject: URGENT: Unlock user SVC_PAYMENT on PRODDB - Payment processing blocked
+Date: 2026-08-04 06:15:00 UTC
+
+Hi DBA Team,
+
+Our payment processing service account (SVC_PAYMENT) got locked on PRODDB
+after the security scan triggered multiple failed login attempts last night.
+
+This is CRITICAL - the morning payment batch cannot run until the account
+is unlocked.
+
+Details:
+- Username: SVC_PAYMENT
+- Database: PRODDB
+- Error: ORA-28000 account is locked
+- Impact: Payment processing halted since 06:00 UTC
+- Cause: Security vulnerability scan (scheduled, but credentials rotated
+  after the scan config was set)
+
+Please unlock user SVC_PAYMENT on PRODDB immediately.
+
+Manager approval: Standing approval for production unlock per INC-2026-0401.
+
+Thanks,
+Operations Team

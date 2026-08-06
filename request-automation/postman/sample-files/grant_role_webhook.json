@@ -1,0 +1,15 @@
+{
+  "event": "access_request",
+  "timestamp": "2026-08-04T10:30:00Z",
+  "source": "monitoring-automation",
+  "payload": {
+    "action": "grant_role",
+    "username": "APP_MONITOR_SVC",
+    "database": "PRODDB",
+    "role": "MONITORING",
+    "environment": "Production",
+    "requested_by": "sre-team@novartis.com",
+    "justification": "SRE monitoring agent needs read access to system views",
+    "approval": "auto-approved by policy engine (monitoring role)"
+  }
+}
