@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "Request Automation API",
+    "description": "Request Intelligence (Flow 2) — AIOps Support POC\n\nTests all scenarios in mock mode. No request body needed — ticket ID in URL drives the test case.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Verify service is running"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns ok', function() {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.status).to.eql('ok');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create User — Happy Path",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/DB-DEMO",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "DB-DEMO"]
+        },
+        "description": "Full pipeline: create user APP_READONLY in DEVDB with Read Only role.\nExpected: status=normalized, confidence=100"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Intent is create_user', function() {",
+              "    pm.expect(json.intent).to.eql('create_user');",
+              "});",
+              "pm.test('Status is normalized', function() {",
+              "    pm.expect(json.status).to.eql('normalized');",
+              "});",
+              "pm.test('Confidence >= 90', function() {",
+              "    pm.expect(json.confidence).to.be.at.least(90);",
+              "});",
+              "pm.test('Username resolved', function() {",
+              "    pm.expect(json.resolved_entities.username).to.eql('APP_READONLY');",
+              "});",
+              "pm.test('Hostname resolved', function() {",
+              "    pm.expect(json.resolved_entities.hostname).to.eql('dev-oracle-01');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing Role — Needs Clarification",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/DB-MISSING",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "DB-MISSING"]
+        },
+        "description": "Incomplete request: create user APP01 in DEVDB but no role specified.\nExpected: status=needs_clarification, role in missing_fields"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Intent is create_user', function() {",
+              "    pm.expect(json.intent).to.eql('create_user');",
+              "});",
+              "pm.test('Status needs clarification', function() {",
+              "    pm.expect(json.status).to.eql('needs_clarification');",
+              "});",
+              "pm.test('Role is missing', function() {",
+              "    pm.expect(json.confidence_metadata.missing_fields).to.include('role');",
+              "});",
+              "pm.test('Confidence below threshold', function() {",
+              "    pm.expect(json.confidence).to.be.below(80);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ambiguous Database — PROD maps to multiple hosts",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/DB-AMBIG",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "DB-AMBIG"]
+        },
+        "description": "Reset password for admin on PROD — but PROD maps to PROD1 and PROD2.\nExpected: status=needs_clarification, ambiguities present"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Status needs clarification', function() {",
+              "    pm.expect(json.status).to.eql('needs_clarification');",
+              "});",
+              "pm.test('Has ambiguities', function() {",
+              "    pm.expect(json.confidence_metadata.ambiguities.length).to.be.at.least(1);",
+              "});",
+              "pm.test('Ambiguity is on database field', function() {",
+              "    pm.expect(json.confidence_metadata.ambiguities[0].field).to.eql('database');",
+              "});",
+              "pm.test('Two candidates', function() {",
+              "    pm.expect(json.confidence_metadata.ambiguities[0].candidates.length).to.eql(2);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unsupported Operation — Tablespace Resize",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/DB-UNSUPPORTED",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "DB-UNSUPPORTED"]
+        },
+        "description": "Resize tablespace — not an automated operation.\nExpected: status=error, intent=unknown"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Intent is unknown', function() {",
+              "    pm.expect(json.intent).to.eql('unknown');",
+              "});",
+              "pm.test('Status is error', function() {",
+              "    pm.expect(json.status).to.eql('error');",
+              "});",
+              "pm.test('Error has message', function() {",
+              "    pm.expect(json.error).to.not.be.null;",
+              "    pm.expect(json.error.error_code).to.eql('unsupported_intent');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "OCR Failure — Graceful Degradation",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/DB-OCR-FAIL",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "DB-OCR-FAIL"]
+        },
+        "description": "Ticket with a corrupt image attachment (bad.png).\nOCR fails but pipeline continues using ticket text.\nExpected: status=normalized (graceful degradation)"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Intent still detected', function() {",
+              "    pm.expect(json.intent).to.eql('create_user');",
+              "});",
+              "pm.test('Status normalized despite OCR failure', function() {",
+              "    pm.expect(json.status).to.eql('normalized');",
+              "});",
+              "pm.test('No error in response', function() {",
+              "    pm.expect(json.error).to.be.null;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown Ticket ID",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/RANDOM-TICKET-999",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "RANDOM-TICKET-999"]
+        },
+        "description": "Ticket ID not in the mock database.\nExpected: Returns gracefully with intent=unknown"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200 (does not crash)', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Intent is unknown', function() {",
+              "    pm.expect(json.intent).to.eql('unknown');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid Input — Blank Ticket ID",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process/%20%20%20",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process", "%20%20%20"]
+        },
+        "description": "Whitespace-only ticket ID — should be rejected.\nExpected: 400 Bad Request"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 400', function() {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Error detail present', function() {",
+              "    var json = pm.response.json();",
+              "    pm.expect(json.detail).to.eql('ticket_id is required');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
