@@ -37,6 +37,8 @@ def create_app() -> FastAPI:
     ocr = build_ocr(settings)
     llm = build_llm(settings)
     app.state.graph = build_graph(jsm, ocr, llm, settings)
+    app.state.ocr = ocr
+    app.state.llm = llm
     app.state.settings = settings
     app.include_router(router)
     return app

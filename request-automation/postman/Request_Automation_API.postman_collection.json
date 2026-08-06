@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Request Automation API",
-    "description": "Request Intelligence (Flow 2) — AIOps Support POC\n\nTests all scenarios in mock mode. No request body needed — ticket ID in URL drives the test case.",
+    "description": "Request Intelligence (Flow 2) — AIOps Support POC\n\nTwo ways to test:\n1. Ticket-based: POST /api/process/{ticket_id} — uses mock tickets\n2. File Upload: POST /api/process-attachment — upload ANY file (log, CSV, image, PDF) and see OCR extraction + full pipeline result",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -288,6 +288,227 @@
               "pm.test('Error detail present', function() {",
               "    var json = pm.response.json();",
               "    pm.expect(json.detail).to.eql('ticket_id is required');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload Log File — OCR Extraction",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process-attachment",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process-attachment"]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "description": "Upload any file: .log, .txt, .csv, .json, .png, .pdf, .xlsx",
+              "value": ""
+            },
+            {
+              "key": "summary",
+              "value": "Unlock user APP_BATCH_01 in PRODDB",
+              "type": "text",
+              "description": "Ticket summary (optional)"
+            },
+            {
+              "key": "description",
+              "value": "Nightly batch job failing due to locked account",
+              "type": "text",
+              "description": "Ticket description (optional)"
+            }
+          ]
+        },
+        "description": "Upload a LOG FILE and see the full extraction + pipeline result.\n\nHow to test:\n1. Select a .log file from your machine (or create one with Oracle error text)\n2. The response shows: extracted_text, intent, entities, confidence\n\nSample log content to test with:\n```\n2026-08-04 ERROR [OracleConnector] ORA-28000: The account APP_BATCH_01 is locked\n2026-08-04 INFO [TicketBot] unlock user APP_BATCH_01 on PRODDB\n```\n\nExpected: intent=unlock_user, username=APP_BATCH_01, database=PRODDB, confidence=100"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('Has extracted text', function() {",
+              "    pm.expect(json.processing.extracted_chars).to.be.above(0);",
+              "});",
+              "pm.test('Intent detected', function() {",
+              "    pm.expect(json.classification.intent).to.not.be.null;",
+              "});",
+              "pm.test('Has confidence score', function() {",
+              "    pm.expect(json.confidence).to.be.a('number');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload CSV — Bulk User Request",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process-attachment",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process-attachment"]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "description": "Upload a .csv file with user provisioning data",
+              "value": ""
+            },
+            {
+              "key": "summary",
+              "value": "Create users from attached CSV",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Please provision all users in the spreadsheet",
+              "type": "text"
+            }
+          ]
+        },
+        "description": "Upload a CSV FILE with user provisioning requests.\n\nSample CSV content:\n```\naction,username,database,role,environment\ncreate_user,SVC_ETL_PROD,DEVDB,ETL_EXECUTOR,Non-Production\ncreate_user,SVC_REPORT_02,DEVDB,READ_ONLY,Non-Production\n```\n\nExpected: intent=create_user, shows full CSV content in extracted_text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('CSV content extracted', function() {",
+              "    pm.expect(json.processing.extracted_text).to.include(',');",
+              "});",
+              "pm.test('Intent is create_user', function() {",
+              "    pm.expect(json.classification.intent).to.eql('create_user');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload Image — Screenshot OCR",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process-attachment",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process-attachment"]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "description": "Upload a .png, .jpg, or .gif screenshot",
+              "value": ""
+            },
+            {
+              "key": "summary",
+              "value": "Create user per attached screenshot",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "See attached form screenshot for details",
+              "type": "text"
+            }
+          ]
+        },
+        "description": "Upload a SCREENSHOT (PNG/JPG) of a request form.\n\nIn mock mode: returns generic OCR text.\nIn live mode (ADAPTER_MODE=live + AWS creds): sends image to Claude Vision API for real visual text extraction.\n\nExpected: Shows extracted text from the image in the response."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('File type is image', function() {",
+              "    pm.expect(['.png', '.jpg', '.jpeg', '.gif']).to.include(json.file_type);",
+              "});",
+              "pm.test('OCR produced text', function() {",
+              "    pm.expect(json.processing.extracted_chars).to.be.above(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload JSON — Webhook Payload",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/process-attachment",
+          "host": ["{{base_url}}"],
+          "path": ["api", "process-attachment"]
+        },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "description": "Upload a .json file",
+              "value": ""
+            },
+            {
+              "key": "summary",
+              "value": "Grant role from automation webhook",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Automated access request from monitoring system",
+              "type": "text"
+            }
+          ]
+        },
+        "description": "Upload a JSON WEBHOOK payload as a file.\n\nSample JSON:\n```json\n{\n  \"action\": \"grant_role\",\n  \"username\": \"APP_MONITOR\",\n  \"database\": \"PRODDB\",\n  \"role\": \"MONITORING\"\n}\n```\n\nExpected: intent=grant_role, full JSON content visible in extracted_text"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "var json = pm.response.json();",
+              "pm.test('JSON content extracted', function() {",
+              "    pm.expect(json.processing.extracted_text).to.include('{');",
+              "});",
+              "pm.test('Intent detected', function() {",
+              "    pm.expect(json.classification.intent).to.be.oneOf(['grant_role', 'create_user', 'unlock_user', 'reset_password', 'unknown']);",
               "});"
             ],
             "type": "text/javascript"
